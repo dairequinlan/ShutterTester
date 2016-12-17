@@ -45,6 +45,7 @@ void loop(){
     }
   } else if(state == STATE_SHUTTER_OPEN) {
     if(ldr < threshold) { // shutter has closed again
+      laser(false);
       shutterClose = micros();
       state = STATE_READY;
       Serial.println("Annnd closed");
@@ -72,13 +73,13 @@ void loop(){
       loLdr = ldr;
     }
 
-    if(hiLdr - loLdr > 10) { //Sufficient difference, lets do it.
+    if(hiLdr - loLdr > 50) { //Sufficient difference, lets do it.
       setThreshold();
       state = STATE_READY;
+      laser(false);
     }
   }
 
-  printState();
 }
 
 void printState() {
@@ -135,6 +136,7 @@ void doCommands() {
         Serial.println(outCommand);
       } else if (command == "meas") {
         Serial.println("Measuring...");
+        laser(true);
         state = STATE_START_MEASURING;
         shutterOpen = 0;
         shutterClose = 0;
@@ -145,6 +147,7 @@ void doCommands() {
       } else if (command == "cal") {
         Serial.println("Calibrating");
         state = STATE_CALIBRATING;
+        laser(true);
         hiLdr = 0;
         loLdr = 1024;
       } else if (command == "las") {
